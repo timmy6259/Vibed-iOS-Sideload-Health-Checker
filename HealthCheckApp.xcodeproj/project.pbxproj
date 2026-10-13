@@ -127,7 +127,7 @@
         0A11111111111121 /* Bridging-Header.h */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.c.h;
-            path = "HealthCheckApp/Bridging-Header.h";
+            path = "Bridging-Header.h";
             sourceTree = "<group>";
         };
         0A11111111111122 /* HealthCheckApp.app */ = {
@@ -140,37 +140,37 @@
         0A11111111111123 /* HealthCheckApp.swift */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.swift;
-            path = "HealthCheckApp/App/HealthCheckApp.swift";
+            path = "HealthCheckApp.swift";
             sourceTree = "<group>";
         };
         0A11111111111124 /* HealthCheckView.swift */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.swift;
-            path = "HealthCheckApp/App/HealthCheckView.swift";
+            path = "HealthCheckView.swift";
             sourceTree = "<group>";
         };
         0A11111111111125 /* HealthStatus.swift */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.swift;
-            path = "HealthCheckApp/Health/HealthStatus.swift";
+            path = "HealthStatus.swift";
             sourceTree = "<group>";
         };
         0A11111111111126 /* JitProbe.c */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.c.c;
-            path = "HealthCheckApp/Health/JitProbe.c";
+            path = "JitProbe.c";
             sourceTree = "<group>";
         };
         0A11111111111127 /* JitProbe.h */ = {
             isa = PBXFileReference;
             lastKnownFileType = sourcecode.c.h;
-            path = "HealthCheckApp/Health/JitProbe.h";
+            path = "JitProbe.h";
             sourceTree = "<group>";
         };
         0A11111111111128 /* Info.plist */ = {
             isa = PBXFileReference;
             lastKnownFileType = text.plist.xml;
-            path = Info.plist;
+            path = "Info.plist";
             sourceTree = "<group>";
         };
         0A11111111111129 /* HealthCheckApp.swift build file */ = {
