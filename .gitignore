@@ -1,0 +1,21 @@
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcworkspace
+*.xcuserstate
+*.xcuserdatad
+*.lock
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+
+# CocoaPods
+Pods/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots

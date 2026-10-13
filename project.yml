@@ -1,0 +1,33 @@
+name: HealthCheckApp
+
+options:
+  bundleIdPrefix: com.timmy6259
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  SWIFT_VERSION: 5.9
+
+targets:
+  HealthCheckApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: HealthCheckApp
+        excludes:
+          - Config/*
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.timmy6259.HealthCheckApp
+      INFO_PLIST_FILE: HealthCheckApp/Config/Info.plist
+
+schemes:
+  HealthCheckApp:
+    build:
+      targets:
+        - target: HealthCheckApp
+          buildTypes:
+            - debug
+            - release
