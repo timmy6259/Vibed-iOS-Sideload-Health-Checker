@@ -4,11 +4,11 @@ options:
   bundleIdPrefix: com.timmy6259
 
 configs:
-  Debug: debug
-  Release: release
+  Debug: Debug
+  Release: Release
 
 settings:
-  SWIFT_VERSION: 5.9
+  SWIFT_VERSION: "5.9"
 
 targets:
   HealthCheckApp:
@@ -27,7 +27,7 @@ schemes:
   HealthCheckApp:
     build:
       targets:
-        - target: HealthCheckApp
+        HealthCheckApp:
           buildTypes:
-            - debug
-            - release
+            - Debug
+            - Release
