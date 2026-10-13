@@ -22,20 +22,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Homebrew dependencies
+      - name: Install xcodegen
         run: |
           which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           brew update
-          brew install xcodegen || true
-          brew install xcpretty || true
+          brew install xcodegen
 
       - name: Generate Xcode project
         run: |
           chmod +x ./scripts/generate_project.sh
           ./scripts/generate_project.sh
+          ls -la
+          test -f "${{ env.PROJECT_FILE }}" || { echo "Project not generated: ${{ env.PROJECT_FILE }}"; exit 1; }
 
-      - name: Display Xcode
-        run: xcodebuild -version
+      - name: Display Xcode version
+        run: xcodebuild -version || true
 
       - name: Clean and archive (unsigned)
         run: |
@@ -44,11 +45,11 @@ jobs:
           mkdir -p "$ARCHIVE_DIR"
           ARCHIVE_PATH="$ARCHIVE_DIR/${{ env.SCHEME }}.xcarchive"
 
-          xcodebuild clean -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | xcpretty || true
+          xcodebuild clean -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" || true
 
-          xcodebuild -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" -archivePath "$ARCHIVE_PATH" archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" | xcpretty
+          xcodebuild -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" -archivePath "$ARCHIVE_PATH" archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" 2>&1 | tee build.log || true
 
-          ls -la "$ARCHIVE_PATH"
+          ls -la "$ARCHIVE_PATH" || true
 
       - name: Package unsigned .ipa
         id: package
@@ -59,7 +60,7 @@ jobs:
 
           if [ ! -d "$APP_PATH" ]; then
             echo "App not found at $APP_PATH"
-            echo "Contents of archive:"
+            echo "Archive contents:" 
             find "$ARCHIVE_PATH" -maxdepth 5 -type f -print || true
             exit 1
           fi
@@ -80,4 +81,3 @@ jobs:
         with:
           name: unsigned-ipa
           path: ${{ steps.package.outputs.ipa_path }}
-
