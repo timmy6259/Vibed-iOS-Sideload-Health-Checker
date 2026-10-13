@@ -22,46 +22,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install xcodegen
-        run: |
-          which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          brew update
-          brew install xcodegen
-
-      - name: Generate Xcode project
-        run: |
-          chmod +x ./scripts/generate_project.sh
-          ./scripts/generate_project.sh
-          ls -la
-          test -f "${{ env.PROJECT_FILE }}" || { echo "Project not generated: ${{ env.PROJECT_FILE }}"; exit 1; }
-
-      - name: Display Xcode version
-        run: xcodebuild -version || true
-
-      - name: Clean and archive (unsigned)
+      - name: Build the unsigned app
         run: |
           set -e
-          ARCHIVE_DIR="$PWD/build"
-          mkdir -p "$ARCHIVE_DIR"
-          ARCHIVE_PATH="$ARCHIVE_DIR/${{ env.SCHEME }}.xcarchive"
-
-          xcodebuild clean -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" || true
-
-          xcodebuild -project "${{ env.PROJECT_FILE }}" -scheme "${{ env.SCHEME }}" -configuration "${{ env.CONFIGURATION }}" -archivePath "$ARCHIVE_PATH" archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" 2>&1 | tee build.log || true
-
-          ls -la "$ARCHIVE_PATH" || true
+          rm -rf build
+          mkdir -p build
+          xcodebuild \
+            -project "${{ env.PROJECT_FILE }}" \
+            -scheme "${{ env.SCHEME }}" \
+            -configuration "${{ env.CONFIGURATION }}" \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            BUILD_DIR="$PWD/build" \
+            OBJROOT="$PWD/build/obj" \
+            SYMROOT="$PWD/build/sym" \
+            build
+          find "$PWD/build" -maxdepth 5 -type d -name "*.app" -print
 
       - name: Package unsigned .ipa
         id: package
         run: |
           set -e
-          ARCHIVE_PATH="$PWD/build/${{ env.SCHEME }}.xcarchive"
-          APP_PATH="$ARCHIVE_PATH/Products/Applications/${{ env.APP_NAME }}.app"
-
-          if [ ! -d "$APP_PATH" ]; then
-            echo "App not found at $APP_PATH"
-            echo "Archive contents:" 
-            find "$ARCHIVE_PATH" -maxdepth 5 -type f -print || true
+          APP_PATH="$(find "$PWD/build" -type d -name "${{ env.APP_NAME }}.app" | head -n 1)"
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "App not found under $PWD/build"
+            find "$PWD/build" -maxdepth 6 -print | head -200
             exit 1
           fi
 
@@ -69,12 +56,11 @@ jobs:
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
 
-          ZIP_NAME="${{ env.SCHEME }}-unsigned.ipa"
+          ZIP_NAME="${{ env.APP_NAME }}-unsigned.ipa"
           rm -f "$ZIP_NAME"
           zip -qry "$ZIP_NAME" Payload
 
           echo "ipa_path=$PWD/$ZIP_NAME" >> "$GITHUB_OUTPUT"
-          echo "Artifact: $ZIP_NAME"
 
       - name: Upload unsigned IPA artifact
         uses: actions/upload-artifact@v4
